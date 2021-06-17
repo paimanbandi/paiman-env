@@ -12,10 +12,6 @@ Plug 'peitalin/vim-jsx-typescript'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-let g:coc_global_extensions = [
-  \ 'coc-tsserver'
-  \ ]
-
 call plug#end()
 
 set number
@@ -48,3 +44,9 @@ autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 
 " coc
 nnoremap <silent> K :call CocAction('doHover')<CR>
+
+let g:coc_global_extensions = [
+  \ 'coc-tsserver'
+  \ ]
+
+
