@@ -1,26 +1,30 @@
-FROM ubuntu:latest
+FROM ubuntu:focal-20210609
 
-LABEL maintainer="yo@paiman.id"
+LABEL maintainer="hub@paiman.id"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ENV ZSH_CUSTOM /root/.oh-my-zsh/custom/
+ENV HOME /root
+ENV ZSH_CUSTOM $HOME/.oh-my-zsh/custom/
 
-WORKDIR /root
+WORKDIR $HOME
 
 RUN apt-get update -y
-RUN apt-get install -y \
-    curl \
-    wget \
-    zsh \
-    git \
-    neovim \
-    fzf \
-    ripgrep \
-    nodejs \
-    npm
-RUN npm install -g npx
-RUN npm install -g nodemon
 
+RUN apt-get install -y \
+	curl \
+	wget \
+	zsh \
+	git \
+	openssh-client \
+	neovim \
+	fzf \
+	ripgrep \
+	nodejs \
+	npm
+
+RUN npm install -g nodemon typescript typescript-formatter
+
+#docker
 RUN apt install -y apt-transport-https ca-certificates gnupg-agent software-properties-common
 
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -30,23 +34,29 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubunt
 RUN apt update -y
 RUN apt install -y docker-ce docker-ce-cli containerd.io
 
-COPY init.vim /root/.config/nvim/init.vim
+#neovim
+RUN mkdir $HOME/.config/coc
 
-RUN curl -fLo /root/.local/share/nvim/site/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+COPY init.vim $HOME/.config/nvim/init.vim
+
+RUN curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs \
+	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 RUN nvim +PlugInstall +qall
+RUN nvim +'CocInstall -sync coc-tsserver coc-json' +qall
 
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh 
+#zsh
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions \
-    ${ZSH_CUSTOM:-/root/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+	${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-    ${ZSH_CUSTOM:-/root/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-RUN curl -fLo /root/.oh-my-zsh/themes/lambda-mod.zsh-theme --create-dirs \
-    https://raw.githubusercontent.com/halfo/lambda-mod-zsh-theme/master/lambda-mod.zsh-theme
+	${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+RUN curl -fLo $HOME/.oh-my-zsh/themes/lambda-mod.zsh-theme --create-dirs \
+	https://raw.githubusercontent.com/halfo/lambda-mod-zsh-theme/master/lambda-mod.zsh-theme
 
-COPY zshrc /root/.zshrc
+COPY zshrc $HOME/.zshrc
 
 WORKDIR /docker
 
 CMD ["zsh"]
+

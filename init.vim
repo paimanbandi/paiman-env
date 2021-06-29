@@ -3,6 +3,7 @@ call plug#begin('/root/.local/share/nvim/plugged')
 
 Plug 'gruvbox-community/gruvbox'
 Plug 'preservim/nerdtree'
+Plug 'preservim/nerdcommenter'
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
@@ -12,12 +13,25 @@ Plug 'peitalin/vim-jsx-typescript'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'Chiel92/vim-autoformat'
+Plug 'ekalinin/Dockerfile.vim'
+
 call plug#end()
 
+set relativenumber
 set number
 set ruler
+set mouse=a
+set tabstop=4 softtabstop=0 shiftwidth=4
+set noswapfile
 
+filetype plugin on
 syntax on
+
+if $TERM_PROGRAM =~ "iTerm"
+	let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+	let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
 
 " gruvbox
 colorscheme gruvbox
@@ -44,9 +58,10 @@ autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 
 " coc
 nnoremap <silent> K :call CocAction('doHover')<CR>
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
-let g:coc_global_extensions = [
-  \ 'coc-tsserver'
-  \ ]
-
-
+"autoformat
+au BufWrite * :Autoformat
